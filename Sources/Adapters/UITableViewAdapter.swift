@@ -129,6 +129,26 @@ extension UITableViewAdapter: UITableViewDataSource {
         cell.render(component: node.component)
         return cell
     }
+
+    open func reverseView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath, reverse: Bool = false) -> UITableViewCell {
+        let node = cellNode(at: indexPath)
+        let registration = cellRegistration(tableView: tableView, indexPath: indexPath, node: node)
+        let reuseIdentifier = node.component.reuseIdentifier
+        let componentCell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? UITableViewCell & ComponentRenderable
+
+        guard let cell = componentCell, cell.isMember(of: registration.class) else {
+            tableView.register(cell: registration, forReuseIdentifier: reuseIdentifier)
+            return self.tableView(tableView, cellForRowAt: indexPath)
+        }
+        if (reverse) {
+            tableView.transform = .init(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: 0)
+
+            cell.transform =  .init(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: 0)
+        }
+
+        cell.render(component: node.component)
+        return cell
+    }
 }
 
 extension UITableViewAdapter: UITableViewDelegate {
